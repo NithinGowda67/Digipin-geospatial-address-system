@@ -1,0 +1,374 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "DIGIPIN Test Vectors",
+  "description": "Shared test vectors for validating DIGIPIN implementations across languages. Both Python and JavaScript must produce identical results for these test cases.",
+  "version": "1.0.0",
+  "updated": "2024-12-14",
+
+  "test_cases": {
+    "encoding": [
+      {
+        "name": "Dak Bhawan, New Delhi (Department of Posts HQ)",
+        "lat": 28.622788,
+        "lon": 77.213033,
+        "precision": 10,
+        "expected": "39J49LL8T4",
+        "description": "Official headquarters of Department of Posts"
+      },
+      {
+        "name": "India Gate, New Delhi",
+        "lat": 28.612894,
+        "lon": 77.229446,
+        "precision": 10,
+        "expected": "39J49JM9P6",
+        "description": "Famous landmark in central Delhi"
+      },
+      {
+        "name": "Gateway of India, Mumbai",
+        "lat": 18.921984,
+        "lon": 72.834656,
+        "precision": 10,
+        "expected": "368TF2K98T",
+        "description": "Iconic monument in Mumbai"
+      },
+      {
+        "name": "Taj Mahal, Agra",
+        "lat": 27.175015,
+        "lon": 78.042155,
+        "precision": 10,
+        "expected": "38MM9C3P43",
+        "description": "World Heritage Site"
+      },
+      {
+        "name": "Mysore Palace",
+        "lat": 12.305167,
+        "lon": 76.655167,
+        "precision": 10,
+        "expected": "33J5T26TFP",
+        "description": "Historical palace in Karnataka"
+      },
+      {
+        "name": "Precision Level 1 (Country)",
+        "lat": 28.6,
+        "lon": 77.2,
+        "precision": 1,
+        "expected": "3",
+        "description": "Country-level precision (~1000km)"
+      },
+      {
+        "name": "Precision Level 5 (City)",
+        "lat": 28.6,
+        "lon": 77.2,
+        "precision": 5,
+        "expected": "39J49",
+        "description": "City-level precision (~4km)"
+      },
+      {
+        "name": "Precision Level 7 (Street)",
+        "lat": 28.6,
+        "lon": 77.2,
+        "precision": 7,
+        "expected": "39J49JJ",
+        "description": "Street-level precision (~250m)"
+      }
+    ],
+
+    "decoding": [
+      {
+        "name": "Decode 10-character code",
+        "code": "39J49LL8T4",
+        "expected_lat": 28.622788,
+        "expected_lon": 77.213033,
+        "precision": 10,
+        "tolerance": 0.000002,
+        "description": "Full precision decoding"
+      },
+      {
+        "name": "Decode 5-character code",
+        "code": "39J49",
+        "expected_lat": 28.6,
+        "expected_lon": 77.2,
+        "precision": 5,
+        "tolerance": 0.02,
+        "description": "City-level decoding"
+      },
+      {
+        "name": "Decode 1-character code",
+        "code": "3",
+        "expected_lat": 22.5,
+        "expected_lon": 81.5,
+        "precision": 1,
+        "tolerance": 5.0,
+        "description": "Country-level decoding (center of India)"
+      }
+    ],
+
+    "validation": [
+      {
+        "name": "Valid 10-char code",
+        "code": "39J49LL8T4",
+        "expected": true,
+        "description": "Standard valid code"
+      },
+      {
+        "name": "Valid 5-char code",
+        "code": "39J49",
+        "expected": true,
+        "description": "Partial code is valid"
+      },
+      {
+        "name": "Valid 1-char code",
+        "code": "3",
+        "expected": true,
+        "description": "Single character code"
+      },
+      {
+        "name": "Invalid - contains lowercase",
+        "code": "39j49ll8t4",
+        "expected": false,
+        "description": "Lowercase letters not allowed"
+      },
+      {
+        "name": "Invalid - contains 0",
+        "code": "39J49LL0T4",
+        "expected": false,
+        "description": "Zero not in character set"
+      },
+      {
+        "name": "Invalid - contains 1",
+        "code": "39J49LL1T4",
+        "expected": false,
+        "description": "One not in character set"
+      },
+      {
+        "name": "Invalid - contains A",
+        "code": "39J49LLAT4",
+        "expected": false,
+        "description": "A not in character set"
+      },
+      {
+        "name": "Invalid - too long",
+        "code": "39J49LL8T4X",
+        "expected": false,
+        "description": "More than 10 characters"
+      },
+      {
+        "name": "Invalid - empty string",
+        "code": "",
+        "expected": false,
+        "description": "Empty code not valid"
+      }
+    ],
+
+    "edge_cases": [
+      {
+        "name": "Northwest corner of India",
+        "lat": 37.0,
+        "lon": 68.0,
+        "precision": 10,
+        "description": "Near Kashmir/Pakistan border"
+      },
+      {
+        "name": "Northeast corner",
+        "lat": 29.0,
+        "lon": 97.0,
+        "precision": 10,
+        "description": "Near Arunachal Pradesh"
+      },
+      {
+        "name": "Southwest corner",
+        "lat": 8.0,
+        "lon": 68.0,
+        "precision": 10,
+        "description": "Near Kerala coast"
+      },
+      {
+        "name": "Southeast corner",
+        "lat": 8.0,
+        "lon": 97.0,
+        "precision": 10,
+        "description": "Near Andaman Islands"
+      },
+      {
+        "name": "Southernmost point (Kanyakumari)",
+        "lat": 8.0873,
+        "lon": 77.5385,
+        "precision": 10,
+        "expected": "32PJ9M26K9",
+        "description": "Southernmost tip of mainland India"
+      }
+    ],
+
+    "bounding_boxes": [
+      {
+        "name": "Bounding box for 10-char code",
+        "code": "39J49LL8T4",
+        "expected": {
+          "min_lat": 28.622780,
+          "max_lat": 28.622796,
+          "min_lon": 77.213028,
+          "max_lon": 77.213044,
+          "tolerance": 0.000001
+        },
+        "description": "~4m x 4m cell"
+      },
+      {
+        "name": "Bounding box for 5-char code",
+        "code": "39J49",
+        "expected": {
+          "min_lat": 28.59,
+          "max_lat": 28.61,
+          "min_lon": 77.19,
+          "max_lon": 77.21,
+          "tolerance": 0.01
+        },
+        "description": "~4km x 4km cell"
+      }
+    ],
+
+    "neighbors": [
+      {
+        "name": "Get all 8 neighbors",
+        "code": "39J49LL8T4",
+        "expected_count": 8,
+        "description": "Should return 8 neighboring cells"
+      },
+      {
+        "name": "North neighbor exists",
+        "code": "39J49LL8T4",
+        "direction": "north",
+        "expected_contains": "39J49LL8T",
+        "description": "Northern neighbor should be similar code"
+      }
+    ],
+
+    "hierarchical": [
+      {
+        "name": "Parent at level 5",
+        "code": "39J49LL8T4",
+        "level": 5,
+        "expected": "39J49",
+        "description": "Extract first 5 characters"
+      },
+      {
+        "name": "Parent at level 1",
+        "code": "39J49LL8T4",
+        "level": 1,
+        "expected": "3",
+        "description": "Extract first character"
+      },
+      {
+        "name": "Parent at level 7",
+        "code": "39J49LL8T4",
+        "level": 7,
+        "expected": "39J49LL",
+        "description": "Extract first 7 characters"
+      }
+    ],
+
+    "round_trip": [
+      {
+        "name": "Round trip - Delhi",
+        "lat": 28.622788,
+        "lon": 77.213033,
+        "precision": 10,
+        "description": "Encode then decode should return approximately same coordinates"
+      },
+      {
+        "name": "Round trip - Mumbai",
+        "lat": 19.0760,
+        "lon": 72.8777,
+        "precision": 10,
+        "description": "Encode then decode should match within precision"
+      },
+      {
+        "name": "Round trip - Bangalore",
+        "lat": 12.9716,
+        "lon": 77.5946,
+        "precision": 10,
+        "description": "Encode then decode verification"
+      }
+    ]
+  },
+
+  "character_set": {
+    "description": "Valid DIGIPIN character set",
+    "characters": "23456789CFJKLMPT",
+    "excluded": "0, 1, A, B, D, E, G, H, I, N, O, Q, R, S, U, V, W, X, Y, Z",
+    "reason": "Excluded to avoid confusion (0/O, 1/I, etc.)"
+  },
+
+  "precision_table": [
+    {
+      "level": 1,
+      "code_length": 1,
+      "approx_distance_m": 1000000,
+      "description": "Country"
+    },
+    {
+      "level": 2,
+      "code_length": 2,
+      "approx_distance_m": 250000,
+      "description": "State"
+    },
+    {
+      "level": 3,
+      "code_length": 3,
+      "approx_distance_m": 62500,
+      "description": "Region"
+    },
+    {
+      "level": 4,
+      "code_length": 4,
+      "approx_distance_m": 15625,
+      "description": "District"
+    },
+    {
+      "level": 5,
+      "code_length": 5,
+      "approx_distance_m": 3906.25,
+      "description": "City"
+    },
+    {
+      "level": 6,
+      "code_length": 6,
+      "approx_distance_m": 976.56,
+      "description": "Neighborhood"
+    },
+    {
+      "level": 7,
+      "code_length": 7,
+      "approx_distance_m": 244.14,
+      "description": "Street"
+    },
+    {
+      "level": 8,
+      "code_length": 8,
+      "approx_distance_m": 61.04,
+      "description": "Building"
+    },
+    {
+      "level": 9,
+      "code_length": 9,
+      "approx_distance_m": 15.26,
+      "description": "Door"
+    },
+    {
+      "level": 10,
+      "code_length": 10,
+      "approx_distance_m": 3.81,
+      "description": "Precise location"
+    }
+  ],
+
+  "usage_notes": {
+    "python": {
+      "load_tests": "import json; with open('tests/data/test_vectors.json') as f: tests = json.load(f)",
+      "example": "for test in tests['test_cases']['encoding']: assert encode(test['lat'], test['lon'], test['precision']) == test['expected']"
+    },
+    "javascript": {
+      "load_tests": "const tests = require('./tests/data/test_vectors.json');",
+      "example": "tests.test_cases.encoding.forEach(test => { assert.strictEqual(encode(test.lat, test.lon, test.precision), test.expected); });"
+    }
+  }
+}

@@ -1,0 +1,121 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+# Security: Restrict permissions to read-only for least privilege
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        exclude:
+          # Python 3.7 is deprecated/unavailable on latest runners
+          - os: macos-latest
+            python-version: '3.7'
+          - os: ubuntu-latest
+            python-version: '3.7'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip' # Optimization: Cache pip packages to speed up builds
+        cache-dependency-path: python/pyproject.toml
+
+    - name: Install core dependencies
+      working-directory: python
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[test]"
+
+    # Optimization: Only install heavy deps on the canonical environment (Ubuntu/3.11)
+    # This prevents slowing down Windows/Mac runs unnecessarily.
+    # Installing all optional extras ensures accurate coverage reporting to Codecov
+    - name: Install optional dependencies (Ubuntu/3.11 only)
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      working-directory: python
+      run: pip install -e ".[pandas,django,fastapi,geo,viz]" || true
+
+    # Smart Test Step: Runs coverage ONLY on the main environment to avoid duplicates.
+    # Runs standard fast tests on all other matrix combinations.
+    - name: Run tests
+      working-directory: python
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ] && [ "${{ matrix.python-version }}" = "3.11" ]; then
+          echo "Running tests WITH coverage..."
+          pip install pytest-cov
+          pytest tests/ -v --cov=src/digipin --cov-report=xml --cov-report=term --junitxml=junit.xml --tb=short
+        else
+          echo "Running standard tests..."
+          pytest tests/ -v --tb=short
+        fi
+
+    # Upload coverage report (pinned to v5 for security)
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./python/coverage.xml  # Correct usage (non-deprecated)
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    # Upload test results (using stable @v1 tag)
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./python/junit.xml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        cache-dependency-path: python/pyproject.toml
+
+    - name: Install linting dependencies
+      working-directory: python
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 mypy
+
+    - name: Check code formatting with Black
+      working-directory: python
+      run: |
+        black --check src/digipin tests/
+
+    - name: Lint with flake8
+      working-directory: python
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 src/digipin tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 src/digipin tests/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+    - name: Type check with mypy
+      working-directory: python
+      run: |
+        # Now checking both source AND tests for type safety
+        mypy src/digipin tests --ignore-missing-imports

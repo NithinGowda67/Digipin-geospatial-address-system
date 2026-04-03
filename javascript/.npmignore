@@ -1,0 +1,10 @@
+# Test files
+test.js
+example.js
+package-lock.json
+
+# Development files
+.git
+.gitignore
+*.log
+node_modules/

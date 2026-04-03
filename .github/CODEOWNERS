@@ -1,0 +1,32 @@
+# CODEOWNERS - Defines who owns and can approve changes to specific parts of the codebase
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners (fallback for everything)
+* @DEADSERPENT
+
+# Python implementation
+/python/ @DEADSERPENT
+/python/src/ @DEADSERPENT
+/python/tests/ @DEADSERPENT
+
+# JavaScript implementation
+/javascript/ @DEADSERPENT
+
+# Critical files (require owner approval)
+/pyproject.toml @DEADSERPENT
+/python/pyproject.toml @DEADSERPENT
+/javascript/package.json @DEADSERPENT
+/.github/workflows/ @DEADSERPENT
+/Makefile @DEADSERPENT
+
+# Security and secrets
+/.github/workflows/publish.yml @DEADSERPENT
+/.github/workflows/SECRETS.md @DEADSERPENT
+/.github/CODEOWNERS @DEADSERPENT
+
+# Shared test infrastructure
+/tests/data/test_vectors.json @DEADSERPENT
+
+# Documentation (can be more open for contributions)
+/docs/ @DEADSERPENT
+/*.md @DEADSERPENT

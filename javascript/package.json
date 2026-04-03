@@ -1,0 +1,50 @@
+{
+  "name": "digipinjs-lib",
+  "version": "1.2.0",
+  "description": "Official JavaScript implementation of India's DIGIPIN national geocoding standard",
+  "main": "digipin.js",
+  "types": "digipin.d.ts",
+  "files": [
+    "digipin.js",
+    "digipin.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test.js",
+    "example": "node example.js",
+    "prepublishOnly": "node test.js"
+  },
+  "keywords": [
+    "digipin",
+    "geocoding",
+    "india",
+    "location",
+    "gis",
+    "postal",
+    "coordinates",
+    "latitude",
+    "longitude",
+    "geohash",
+    "what3words-alternative",
+    "postal-code"
+  ],
+  "author": "SAMARTHA H V <samarthsmg14@gmail.com>, MR SHIVAKUMAR <hmrshivu@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DEADSERPENT/digipin.git",
+    "directory": "javascript"
+  },
+  "bugs": {
+    "url": "https://github.com/DEADSERPENT/digipin/issues"
+  },
+  "homepage": "https://github.com/DEADSERPENT/digipin/tree/main/javascript#readme",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}

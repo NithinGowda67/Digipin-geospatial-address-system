@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/DEADSERPENT/digipin/discussions
+    about: Ask questions or discuss ideas with the community
+  - name: Documentation
+    url: https://github.com/DEADSERPENT/digipin/blob/main/DOCUMENTATION.md
+    about: Read the full API documentation
+  - name: Official Specification
+    url: https://github.com/DEADSERPENT/digipin/blob/main/docs/technical_spec.md
+    about: Read the DIGIPIN technical specification

@@ -1,0 +1,59 @@
+# CodeQL Security Analysis for DIGIPIN-Py
+# Automatically scans code for security vulnerabilities and coding errors
+# Documentation: https://docs.github.com/en/code-security/code-scanning
+
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run every Saturday at 4:16 AM UTC (9:46 AM IST)
+    - cron: '16 4 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required for all workflows
+      security-events: write
+      # Required to fetch internal or private CodeQL packs
+      packages: read
+      # Only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Scan GitHub Actions workflows for security issues
+          - language: actions
+            build-mode: none
+
+          # Scan Python code for vulnerabilities
+          - language: python
+            build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Initialize CodeQL tools for scanning
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # Enable security-extended queries for deeper analysis
+          queries: security-extended
+
+      # Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

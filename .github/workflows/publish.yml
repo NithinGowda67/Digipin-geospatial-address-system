@@ -1,0 +1,58 @@
+# Publish to PyPI when a release is created
+# This workflow is triggered manually via GitHub Releases
+# Documentation: https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+#
+# SECURITY: Requires PYPI_TOKEN secret to be configured
+# Only repository owners can trigger this workflow
+
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # Allow manual trigger (owner only)
+
+permissions:
+  contents: read
+  id-token: write  # Required for trusted publishing (optional, more secure)
+
+jobs:
+  publish:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install build dependencies
+      working-directory: python
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Build package
+      working-directory: python
+      run: python -m build
+
+    - name: Check package with twine
+      working-directory: python
+      run: twine check dist/*
+
+    - name: Publish to PyPI
+      working-directory: python
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}  # Secret managed by repo owner only
+      run: |
+        if [ -z "$TWINE_PASSWORD" ]; then
+          echo "❌ Error: PYPI_TOKEN secret not configured"
+          echo "See .github/workflows/SECRETS.md for setup instructions"
+          exit 1
+        fi
+        twine upload dist/*

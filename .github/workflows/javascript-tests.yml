@@ -1,0 +1,128 @@
+name: JavaScript Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'javascript/**'
+      - '.github/workflows/javascript-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'javascript/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: ['16', '18', '20', '21']
+        exclude:
+          # Node 16 is deprecated on latest macOS runners
+          - os: macos-latest
+            node-version: '16'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: javascript/package-lock.json
+
+    - name: Install dependencies
+      working-directory: javascript
+      run: npm ci || npm install
+
+    - name: Run tests
+      working-directory: javascript
+      run: npm test
+
+    - name: Run example
+      working-directory: javascript
+      run: node example.js
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: javascript/package-lock.json
+
+    - name: Install dependencies
+      working-directory: javascript
+      run: npm ci || npm install
+
+    - name: Check code style
+      working-directory: javascript
+      run: |
+        echo "Running basic JavaScript linting..."
+        node -c digipin.js
+        node -c test.js
+        node -c example.js
+        echo "✓ All JavaScript files are syntactically valid"
+
+  package-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Verify package.json
+      working-directory: javascript
+      run: |
+        echo "Checking package.json structure..."
+        node -e "const pkg = require('./package.json'); console.log('✓ Package name:', pkg.name); console.log('✓ Version:', pkg.version);"
+
+    - name: Check TypeScript definitions
+      working-directory: javascript
+      run: |
+        if [ -f "digipin.d.ts" ]; then
+          echo "✓ TypeScript definitions found"
+          head -10 digipin.d.ts
+        else
+          echo "⚠ No TypeScript definitions"
+          exit 1
+        fi
+
+  compatibility:
+    name: Browser Compatibility Check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Check ES6+ compatibility
+      working-directory: javascript
+      run: |
+        echo "Checking for browser-incompatible features..."
+        if grep -q "require(" digipin.js; then
+          echo "⚠ Warning: Uses CommonJS require (may need bundler for browser)"
+        else
+          echo "✓ No CommonJS detected"
+        fi
+        echo "✓ Compatibility check complete"
